@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -24,7 +26,28 @@
     </main>
     <footer class="footer">
         <div class="container">
-            <div><span class="text-muted">Viewing this application as: @(String.IsNullOrWhiteSpace(User?.Identity?.Name) ? "Anonymous" : User.Identity.Name) | Server: @(Environment.MachineName) | Running as: @(System.Security.Principal.WindowsIdentity.GetCurrent().Name)</span></div>
+            @{
+                string GetRunningAsUser()
+                {
+                    if (System.OperatingSystem.IsWindows())
+                    {
+                        return System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+                    }
+
+                    if (!String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("USERNAME")))
+                    {
+                        return Environment.GetEnvironmentVariable("USERNAME")!;
+                    }
+
+                    if (!String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("USER")))
+                    {
+                        return Environment.GetEnvironmentVariable("USER")!;
+                    }
+
+                    return "Unknown";
+                }
+            }
+            <div><span class="text-muted">Viewing this application as: @(String.IsNullOrWhiteSpace(User?.Identity?.Name) ? "Anonymous" : User.Identity.Name) | Environment: @(WebHostEnvironment.EnvironmentName) | Server: @(Environment.MachineName) | Running as: @(GetRunningAsUser()) | Framework: @(System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription)</span></div>
         </div>
     </footer>
 </body>

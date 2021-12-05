@@ -27,6 +27,17 @@ namespace WebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                        .SetIsOriginAllowed(s => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                );
+            });
+
             services.AddMvc(options =>
             {
                 options.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
@@ -74,6 +85,8 @@ namespace WebApplication
             {
                 app.UseExceptionHandler("/Error");
             }
+
+            app.UseCors("CorsPolicy");
 
             app.UseStaticFiles();
 
